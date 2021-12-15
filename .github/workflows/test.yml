@@ -1,4 +1,4 @@
-name: check formatting
+name: test
 
 on:
   push:
@@ -16,4 +16,8 @@ jobs:
       - uses: gleam-lang/setup-gleam@v1.0.2
         with:
           gleam-version: 0.18.2
-      - run: gleam format --check src test
+      - uses: actions/setup-node@v2
+        with:
+          node-version: "16"
+      - run: npm install
+      - run: npm run test

@@ -25,6 +25,12 @@ external fn remove_child(DOMElement, DOMElement) -> Nil =
 external fn replace_child(DOMElement, DOMElement, DOMElement) -> Nil =
   "./browser_ffi.js" "replaceChild"
 
+pub external fn log(anything) -> Nil =
+  "" "console.log"
+
+pub external fn outer_html(DOMElement) -> String =
+  "./browser_ffi.js" "outerHTML"
+
 pub fn create(node: Node) -> DOMElement {
   case node {
     Element(tag: tag, children: children, ..) -> {
