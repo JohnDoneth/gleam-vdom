@@ -1,3 +1,5 @@
+//// Module for interfacing with the external DOM representation.
+
 import node.{Element, Node, Text}
 import gleam/list
 import gleam/option.{None, Option, Some}

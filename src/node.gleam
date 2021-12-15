@@ -1,3 +1,6 @@
+//// Contains the pure virtual DOM representation `Node` and functions for
+//// interacting with it.
+
 import gleam/map.{Map}
 import gleam/string
 import gleam/list

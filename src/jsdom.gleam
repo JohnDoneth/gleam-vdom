@@ -1,3 +1,5 @@
+//// Module for interfacing with the [JSDOM](https://github.com/jsdom/jsdom) library.
+
 /// Initializes the JSDOM library for working with a mocked DOM.
 ///
 /// Must be called before invoking any DOM manipulation functions when
