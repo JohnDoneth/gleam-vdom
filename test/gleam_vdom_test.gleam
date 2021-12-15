@@ -1,4 +1,4 @@
-import gleam_vdom.{Element, Text, element, element_, render, text}
+import node.{Element, Text, element, element_, render, text}
 import node_assert.{should_equal}
 import browser
 import gleam/io
@@ -54,13 +54,18 @@ pub fn update_existing_element_test() {
   let desired = element("button", [], [text("Nevermind"), element_("p", [])])
 
   // Update without existing state.
-  browser.update_element(container, Some(desired), None, 0)
+  browser.update_element(container, new: Some(desired), old: None, index: 0)
 
   // Update with existing state.
-  browser.update_element(container, Some(desired), Some(initial), 0)
+  browser.update_element(
+    container,
+    new: Some(desired),
+    old: Some(initial),
+    index: 0,
+  )
 
   should_equal(
     browser.outer_html(container),
-    "<div><button>Nevermind<p></p><p></p></button></div>",
+    "<div><button>Nevermind<p></p></button></div>",
   )
 }

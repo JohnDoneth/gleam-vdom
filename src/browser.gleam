@@ -1,4 +1,4 @@
-import gleam_vdom.{Element, Node, Text}
+import node.{Element, Node, Text}
 import gleam/list
 import gleam/option.{None, Option, Some}
 import gleam/io
@@ -58,9 +58,9 @@ pub fn changed(node1: Node, node2: Node) -> Bool {
 /// state.
 pub fn update_element(
   parent: DOMElement,
-  new_node: Option(Node),
-  old_node: Option(Node),
-  index: Int,
+  new new_node: Option(Node),
+  old old_node: Option(Node),
+  index index: Int,
 ) {
   case new_node, old_node {
     Some(new_node), None -> append_child(parent, create(new_node))
@@ -82,7 +82,7 @@ pub fn update_element(
             ) -> {
               let new_length = list.length(new_node_children)
               let old_length = list.length(old_node_children)
-              let m = int.max(new_length, old_length)
+              let m = int.min(new_length, old_length)
               iterator.range(from: 0, to: m)
               |> iterator.to_list()
               |> list.map(fn(i) {
