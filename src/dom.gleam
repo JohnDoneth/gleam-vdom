@@ -70,7 +70,7 @@ pub fn update_element(
 ) {
   case new_node, old_node {
     Some(new_node), None -> append_child(parent, create(new_node))
-    None, Some(old_node) ->
+    None, Some(_old_node) ->
       remove_child(parent, child_node_at_index_unchecked(parent, index))
     Some(new_node), Some(old_node) ->
       case changed(new_node, old_node) {
