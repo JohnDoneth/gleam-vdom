@@ -1,17 +1,17 @@
-//// Contains the pure virtual DOM representation `Node` and functions for
+//// Contains the pure virtual DOM representation `VNode` and functions for
 //// interacting with it.
 
 import gleam/map.{Map}
 import gleam/string
 import gleam/list
 
-pub type Node {
-  Element(tag: String, attributes: Map(String, String), children: List(Node))
+pub type VNode {
+  Element(tag: String, attributes: Map(String, String), children: List(VNode))
   Text(value: String)
 }
 
-/// Render a `Node` to its HTML representation.
-pub fn render(node: Node) {
+/// Render a `VNode` to its HTML representation.
+pub fn render(node: VNode) {
   case node {
     Element(tag: tag, attributes: attributes, children: children) -> {
       let rendered_body =
@@ -51,17 +51,17 @@ pub fn render(node: Node) {
 pub fn element(
   tag: String,
   attributes: List(#(String, String)),
-  children: List(Node),
-) -> Node {
+  children: List(VNode),
+) -> VNode {
   Element(tag: tag, attributes: map.from_list(attributes), children: children)
 }
 
 /// Same as `element` without children.
-pub fn element_(tag: String, attributes: List(#(String, String))) -> Node {
+pub fn element_(tag: String, attributes: List(#(String, String))) -> VNode {
   Element(tag: tag, attributes: map.from_list(attributes), children: [])
 }
 
 /// Helper function for creating a virtual text element.
-pub fn text(value: String) -> Node {
+pub fn text(value: String) -> VNode {
   Text(value: value)
 }

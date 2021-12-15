@@ -1,6 +1,6 @@
 //// Module for interfacing with the external DOM representation.
 
-import node.{Element, Node, Text}
+import vnode.{Element, Text, VNode}
 import gleam/list
 import gleam/option.{None, Option, Some}
 import gleam/io
@@ -34,7 +34,7 @@ pub external fn outer_html(DOMElement) -> String =
   "./browser_ffi.js" "outerHTML"
 
 /// Creates a real DOM element from a virtual node; Including all of it's children.
-pub fn create(node: Node) -> DOMElement {
+pub fn create(node: VNode) -> DOMElement {
   case node {
     Element(tag: tag, children: children, ..) -> {
       let element = create_element(tag)
@@ -47,7 +47,7 @@ pub fn create(node: Node) -> DOMElement {
   }
 }
 
-fn changed(node1: Node, node2: Node) -> Bool {
+fn changed(node1: VNode, node2: VNode) -> Bool {
   case node1, node2 {
     Text(_), Element(..) -> True
     Element(..), Text(_) -> True
@@ -64,8 +64,8 @@ fn changed(node1: Node, node2: Node) -> Bool {
 /// externally.
 pub fn update_element(
   parent: DOMElement,
-  new new_node: Option(Node),
-  old old_node: Option(Node),
+  new new_node: Option(VNode),
+  old old_node: Option(VNode),
   index index: Int,
 ) {
   case new_node, old_node {

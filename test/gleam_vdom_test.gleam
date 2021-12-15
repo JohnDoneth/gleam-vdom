@@ -1,4 +1,4 @@
-import node.{Element, Text, element, element_, render, text}
+import vnode.{Element, Text, element, element_, render, text}
 import node_assert.{should_equal}
 import browser
 import gleam/io
