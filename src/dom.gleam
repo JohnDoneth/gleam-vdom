@@ -1,4 +1,4 @@
-//// Module for interfacing with the external DOM representation.
+//// Module for interfacing with the non-virtual DOM.
 
 import vnode.{Element, Text, VNode}
 import gleam/list
