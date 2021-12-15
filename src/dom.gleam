@@ -11,27 +11,27 @@ import gleam/iterator
 pub external type DOMElement
 
 external fn create_text_node(String) -> DOMElement =
-  "./browser_ffi.js" "createTextNode"
+  "./dom_ffi.js" "createTextNode"
 
 external fn create_element(String) -> DOMElement =
-  "./browser_ffi.js" "createElement"
+  "./dom_ffi.js" "createElement"
 
 external fn append_child(DOMElement, DOMElement) -> Nil =
-  "./browser_ffi.js" "appendChild"
+  "./dom_ffi.js" "appendChild"
 
 external fn child_node_at_index_unchecked(DOMElement, Int) -> DOMElement =
-  "./browser_ffi.js" "childNodeAtIndexUnchecked"
+  "./dom_ffi.js" "childNodeAtIndexUnchecked"
 
 external fn remove_child(DOMElement, DOMElement) -> Nil =
-  "./browser_ffi.js" "removeChild"
+  "./dom_ffi.js" "removeChild"
 
 external fn replace_child(DOMElement, DOMElement, DOMElement) -> Nil =
-  "./browser_ffi.js" "replaceChild"
+  "./dom_ffi.js" "replaceChild"
 
 /// Returns the value of [outerHTML](https://developer.mozilla.org/en-US/docs/Web/API/Element/outerHTML)
 /// for the provided `DOMElement`
 pub external fn outer_html(DOMElement) -> String =
-  "./browser_ffi.js" "outerHTML"
+  "./dom_ffi.js" "outerHTML"
 
 /// Creates a real DOM element from a virtual node; Including all of it's children.
 pub fn create(node: VNode) -> DOMElement {
