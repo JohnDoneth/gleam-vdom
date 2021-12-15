@@ -1,0 +1,39 @@
+{
+    "name": "gleam_vdom",
+    "type": "module",
+    "scripts": {
+        "build": "node bin/build.js build",
+        "test": "node bin/build.js test",
+        "start": "node bin/build.js start",
+        "uuid": "echo 8bde8a39a48c43d494284cacb7198ad1"
+    },
+    "devDependencies": {
+        "gleam-packages": "file:./target/lib"
+    },
+    "gleamDependencies": [
+        {
+            "name": "gleam_stdlib",
+            "ref": "main",
+            "url": "https://github.com/gleam-lang/stdlib.git"
+        },
+        {
+            "name": "gleeunit",
+            "ref": "main",
+            "url": "https://github.com/lpil/gleeunit.git",
+            "dependencies": [
+                "gleam_stdlib"
+            ]
+        },
+        {
+            "name": "gleam_javascript",
+            "ref": "main",
+            "url": "https://github.com/gleam-lang/javascript.git",
+            "dependencies": [
+                "gleam_stdlib"
+            ]
+        }
+    ],
+    "dependencies": {
+        "jsdom": "^19.0.0"
+    }
+}
