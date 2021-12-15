@@ -5,6 +5,7 @@ import gleam/io
 import gleam/int
 import gleam/iterator
 
+/// Represents a DOM [Element](https://developer.mozilla.org/en-US/docs/Web/API/Element).
 pub external type DOMElement
 
 external fn create_text_node(String) -> DOMElement =
@@ -25,12 +26,12 @@ external fn remove_child(DOMElement, DOMElement) -> Nil =
 external fn replace_child(DOMElement, DOMElement, DOMElement) -> Nil =
   "./browser_ffi.js" "replaceChild"
 
-pub external fn log(anything) -> Nil =
-  "" "console.log"
-
+/// Returns the value of [outerHTML](https://developer.mozilla.org/en-US/docs/Web/API/Element/outerHTML)
+/// for the provided `DOMElement`
 pub external fn outer_html(DOMElement) -> String =
   "./browser_ffi.js" "outerHTML"
 
+/// Creates a real DOM element from a virtual node; Including all of it's children.
 pub fn create(node: Node) -> DOMElement {
   case node {
     Element(tag: tag, children: children, ..) -> {
@@ -44,7 +45,7 @@ pub fn create(node: Node) -> DOMElement {
   }
 }
 
-pub fn changed(node1: Node, node2: Node) -> Bool {
+fn changed(node1: Node, node2: Node) -> Bool {
   case node1, node2 {
     Text(_), Element(..) -> True
     Element(..), Text(_) -> True
@@ -54,8 +55,11 @@ pub fn changed(node1: Node, node2: Node) -> Bool {
   }
 }
 
-/// Updates the element in place given the container element, old state, and new
-/// state.
+/// Updates the element in-place given the container element, new state, and old
+/// state. 
+///
+/// The `index` argument is used recursively and should be 0 using this function
+/// externally.
 pub fn update_element(
   parent: DOMElement,
   new new_node: Option(Node),

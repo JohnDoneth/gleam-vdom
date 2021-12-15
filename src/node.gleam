@@ -7,6 +7,7 @@ pub type Node {
   Text(value: String)
 }
 
+/// Render a `Node` to its HTML representation.
 pub fn render(node: Node) {
   case node {
     Element(tag: tag, attributes: attributes, children: children) -> {
@@ -43,6 +44,7 @@ pub fn render(node: Node) {
   }
 }
 
+/// Helper function for creating a virtual DOM element.
 pub fn element(
   tag: String,
   attributes: List(#(String, String)),
@@ -51,10 +53,12 @@ pub fn element(
   Element(tag: tag, attributes: map.from_list(attributes), children: children)
 }
 
+/// Same as `element` without children.
 pub fn element_(tag: String, attributes: List(#(String, String))) -> Node {
   Element(tag: tag, attributes: map.from_list(attributes), children: [])
 }
 
+/// Helper function for creating a virtual text element.
 pub fn text(value: String) -> Node {
   Text(value: value)
 }
