@@ -1,4 +1,5 @@
 # gleam_vdom
+[![test](https://github.com/JohnDoneth/gleam-vdom/actions/workflows/test.yml/badge.svg)](https://github.com/JohnDoneth/gleam-vdom/actions/workflows/test.yml)
 
 Gleam library for working with [Virtual DOMs](https://en.wikipedia.org/wiki/Virtual_DOM).
 
