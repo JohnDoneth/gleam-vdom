@@ -3,23 +3,53 @@
 // ending with `_test`.
 //
 
+// function inspect(any) {
+//   console.log(any);
+//   return any;
+// }
+
+async function importTestsFromModules(modulePaths) {
+  const modules = await Promise.all(
+    modulePaths.map((module_path) => import(module_path))
+  );
+
+  return Object.fromEntries(
+    modules
+      .map((module) => Object.entries(module))
+      .flat()
+      .filter(([function_name, _value]) => function_name.endsWith("_test"))
+  );
+}
+
+function stringify(anything) {
+  if (typeof anything == "object") {
+    return JSON.stringify(anything);
+  } else {
+    return anything.toString();
+  }
+}
+
 console.log("running tests");
 
-let module = await import("./target/lib/gleam_vdom/gleam_vdom_test.js");
-let keys = Object.keys(module);
-let tests = keys.filter((x) => x.endsWith("_test"));
+let tests = await importTestsFromModules([
+  "./target/lib/gleam_vdom/vdom_test.js",
+  "./target/lib/gleam_vdom/diff_test.js",
+  "./target/lib/gleam_vdom/dom_test.js",
+]);
 
 let anyFailed = false;
 
-tests.forEach((test) => {
+Object.entries(tests).forEach(([test_name, test]) => {
   try {
-    process.stdout.write(`test ${test}`);
-    module[test]();
+    process.stdout.write(`test ${test_name}`);
+    test.call();
     process.stdout.write(` passed ✔️\n`);
   } catch (e) {
     if (e.expected && e.actual) {
       console.log(
-        `test ${test} failed: \n\tExpected: ${e.expected}\n\tActual:   ${e.actual}\n`
+        ` failed: \n\tExpected: ${stringify(
+          e.expected
+        )}\n\tActual:   ${stringify(e.actual)}\n`
       );
     } else {
       process.stdout.write(` failed:\n`);

@@ -28,6 +28,18 @@ export function replaceChild(parent, child, replacement) {
   parent.replaceChild(child, replacement);
 }
 
+export function insertBefore(parent, child, before) {
+  parent.insertBefore(child, before);
+}
+
+export function childrenLength(parent) {
+  return parent.children.length;
+}
+
+export function setTextContent(element, text) {
+  element.textContent = text;
+}
+
 export function outerHTML(element) {
   return element.outerHTML;
 }

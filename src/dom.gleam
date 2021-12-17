@@ -1,11 +1,12 @@
 //// Module for interfacing with the non-virtual DOM.
 
-import vnode.{Element, Text, VNode}
+import vdom.{Element, Text, VDOM}
 import gleam/list
 import gleam/option.{None, Option, Some}
 import gleam/io
 import gleam/int
 import gleam/iterator
+import diff.{ChildDiff, Delete, Diff, Insert, ReplaceText}
 
 /// Represents a DOM [Element](https://developer.mozilla.org/en-US/docs/Web/API/Element).
 pub external type DOMElement
@@ -28,13 +29,22 @@ external fn remove_child(DOMElement, DOMElement) -> Nil =
 external fn replace_child(DOMElement, DOMElement, DOMElement) -> Nil =
   "./dom_ffi.js" "replaceChild"
 
+external fn insert_before(DOMElement, DOMElement, DOMElement) -> Nil =
+  "./dom_ffi.js" "insertBefore"
+
+external fn children_length(DOMElement) -> Int =
+  "./dom_ffi.js" "childrenLength"
+
+external fn set_text_content(DOMElement, String) -> Nil =
+  "./dom_ffi.js" "setTextContent"
+
 /// Returns the value of [outerHTML](https://developer.mozilla.org/en-US/docs/Web/API/Element/outerHTML)
 /// for the provided `DOMElement`
 pub external fn outer_html(DOMElement) -> String =
   "./dom_ffi.js" "outerHTML"
 
 /// Creates a real DOM element from a virtual node; Including all of it's children.
-pub fn create(node: VNode) -> DOMElement {
+pub fn create(node: VDOM) -> DOMElement {
   case node {
     Element(tag: tag, children: children, ..) -> {
       let element = create_element(tag)
@@ -47,72 +57,38 @@ pub fn create(node: VNode) -> DOMElement {
   }
 }
 
-fn changed(node1: VNode, node2: VNode) -> Bool {
-  case node1, node2 {
-    Text(_), Element(..) -> True
-    Element(..), Text(_) -> True
-    Text(a), Text(b) -> a != b
-    Element(tag: node1tag, ..), Element(tag: node2tag, ..) ->
-      node1tag != node2tag
-  }
+/// Applies multiple `diff`s under a given element.
+pub fn patch(parent: DOMElement, diff_list: List(Diff)) -> DOMElement {
+  list.map(diff_list, fn(diff) { apply_diff(parent, diff) })
+  parent
 }
 
-/// Updates the element in-place given the container element, new state, and old
-/// state. 
-///
-/// The `index` argument is used recursively and should be 0 using this function
-/// externally.
-pub fn update_element(
-  parent: DOMElement,
-  new new_node: Option(VNode),
-  old old_node: Option(VNode),
-  index index: Int,
-) {
-  case new_node, old_node {
-    Some(new_node), None -> append_child(parent, create(new_node))
-    None, Some(_old_node) ->
-      remove_child(parent, child_node_at_index_unchecked(parent, index))
-    Some(new_node), Some(old_node) ->
-      case changed(new_node, old_node) {
-        True ->
-          replace_child(
-            parent,
-            create(new_node),
-            child_node_at_index_unchecked(parent, index),
-          )
-        False -> {
-          case new_node, old_node {
-            Element(children: new_node_children, ..), Element(
-              children: old_node_children,
-              ..,
-            ) -> {
-              let new_length = list.length(new_node_children)
-              let old_length = list.length(old_node_children)
-              let m = int.min(new_length, old_length)
-              iterator.range(from: 0, to: m)
-              |> iterator.to_list()
-              |> list.map(fn(i) {
-                let new_node_child =
-                  list.at(in: new_node_children, get: i)
-                  |> option.from_result()
-                let old_node_child =
-                  list.at(in: old_node_children, get: i)
-                  |> option.from_result()
-                update_element(
-                  child_node_at_index_unchecked(parent, index),
-                  new_node_child,
-                  old_node_child,
-                  i,
-                )
-              })
-              Nil
-            }
-          }
-          Nil
-        }
+/// Applies a single  `diff` under a given element.
+pub fn apply_diff(node: DOMElement, diff: Diff) -> DOMElement {
+  case diff {
+    Delete(index: index) -> {
+      let child = child_node_at_index_unchecked(node, index)
+      remove_child(node, child)
+      node
+    }
+    Insert(index: index, vdom: vdom) -> {
+      let child = create(vdom)
+      case index >= children_length(node) {
+        True -> append_child(node, child)
+        False ->
+          insert_before(node, child, child_node_at_index_unchecked(node, index))
       }
-    None, None ->
-      // Do nothing
-      Nil
+      node
+    }
+    ReplaceText(index: index, text: text) -> {
+      let child = child_node_at_index_unchecked(node, index)
+      set_text_content(child, text)
+      node
+    }
+    ChildDiff(index: index, attr_diff: _attr_diff_list, diff: diff_list) -> {
+      let child = child_node_at_index_unchecked(node, index)
+      list.map(diff_list, fn(diff) { apply_diff(child, diff) })
+      node
+    }
   }
 }
