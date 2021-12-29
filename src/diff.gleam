@@ -7,6 +7,8 @@ import gleam/list
 import gleam/int
 import gleam/iterator
 import gleam/io
+import gleam/map.{Map}
+import attribute.{Attribute}
 
 pub type Diff {
   /// Delete a child node at `index`.
@@ -16,7 +18,13 @@ pub type Diff {
   /// Replace the text content of the child at `index` with `text`.
   ReplaceText(index: Int, text: String)
   /// A list of `diff`s to be applied to the child node at `index`.
-  ChildDiff(index: Int, attr_diff: List(String), diff: List(Diff))
+  ChildDiff(index: Int, attr_diff: List(AttrDiff), diff: List(Diff))
+}
+
+pub type AttrDiff {
+  DeleteKey(key: String)
+  // ReplaceKey(key: String, value)
+  InsertKey(key: String, attribute: Attribute)
 }
 
 fn changed(node1: VDOM, node2: VDOM) -> Bool {
@@ -56,39 +64,77 @@ fn diff_(
           list.append(acc, [Delete(index: 0), Insert(index: 0, vdom: new_node)])
         False ->
           case new_node, old_node {
-            Element(children: new_node_children, ..), Element(
+            Element(children: new_node_children, attributes: new_attrs, ..), Element(
               children: old_node_children,
+              attributes: old_attrs,
               ..,
-            ) -> {
-              let new_length = list.length(new_node_children)
-              let old_length = list.length(old_node_children)
-              let m = int.min(new_length, old_length)
-              let diffs =
-                iterator.range(from: 0, to: m)
-                |> iterator.to_list()
-                |> list.map(fn(i) {
-                  let new_node_child =
-                    list.at(in: new_node_children, get: i)
-                    |> option.from_result()
-                  let old_node_child =
-                    list.at(in: old_node_children, get: i)
-                    |> option.from_result()
-                  ChildDiff(
-                    index: i,
-                    attr_diff: [],
-                    diff: diff_(
-                      new: new_node_child,
-                      old: old_node_child,
-                      index: i,
-                      acc: acc,
-                    ),
-                  )
-                })
-              list.append(acc, diffs)
-            }
+            ) ->
+              list.append(
+                acc,
+                diff_children(
+                  new_node_children,
+                  old_node_children,
+                  diff_attributes(new_attrs, old_attrs),
+                  acc,
+                ),
+              )
           }
       }
 
     None, None -> acc
   }
+}
+
+fn diff_children(
+  new_children: List(VDOM),
+  old_children: List(VDOM),
+  attr_diffs: List(AttrDiff),
+  acc: List(Diff),
+) -> List(Diff) {
+  let new_length = list.length(new_children)
+  let old_length = list.length(old_children)
+  let m = int.min(new_length, old_length)
+  let diffs =
+    iterator.range(from: 0, to: m)
+    |> iterator.to_list()
+    |> list.map(fn(i) {
+      let new_child =
+        list.at(in: new_children, get: i)
+        |> option.from_result()
+      let old_child =
+        list.at(in: old_children, get: i)
+        |> option.from_result()
+      ChildDiff(
+        index: i,
+        attr_diff: [],
+        diff: diff_(new: new_child, old: old_child, index: i, acc: acc),
+      )
+    })
+}
+
+fn diff_attributes(
+  new_attrs: Map(String, Attribute),
+  old_attrs: Map(String, Attribute),
+) -> List(AttrDiff) {
+//   io.debug(new_attrs)
+//   io.debug(old_attrs)
+
+  map.fold(over: new_attrs, from: [], with: fn(acc, new_key, new_value) {
+
+    case map.get(old_attrs, new_key) {
+        Ok(old_value) -> {
+            case old_value == new_value {
+                True -> acc
+                False -> list.append(acc, [
+                    InsertKey(key: new_key, attribute: new_value)
+                ])
+            }
+        }
+        Error(Nil) -> 
+            list.append(acc, [
+                    DeleteKey(key: new_key)
+                ])
+    }
+
+  })
 }

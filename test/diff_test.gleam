@@ -5,6 +5,7 @@ import gleam/io
 import jsdom
 import gleam/option.{None, Some}
 import diff.{ChildDiff, Delete, Insert, ReplaceText, diff}
+import attribute.{AText}
 
 pub fn diff_none_test() {
   should_equal(diff(None, None), [])
@@ -71,4 +72,18 @@ pub fn diff_nested_replace_element_and_text_test() {
       ),
     ],
   )
+}
+
+pub fn diff_attribute_insert_test() {
+  let diffs =
+    diff(
+      new: Some(element_("p", [#("key", AText("value"))])),
+      old: Some(element_("p", [])),
+    )
+  should_equal(diffs, [ChildDiff(index: 0, attr_diff: [], diff: [])])
+  //   Delete(index: 0),
+  //   Insert(
+  //     index: 0,
+  //     vdom: element("p", [], [text("new_text_in_element")]),
+  //   ),
 }

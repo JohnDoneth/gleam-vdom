@@ -4,7 +4,8 @@ import dom
 import gleam/io
 import jsdom
 import gleam/option.{None, Some}
-import diff.{ChildDiff, Delete, Insert, ReplaceText}
+import diff.{ChildDiff, Delete, DeleteKey, Insert, InsertKey, ReplaceText}
+import attribute.{ABool, AText}
 
 pub fn apply_diff_insert_test() {
   jsdom.init()
@@ -124,4 +125,47 @@ pub fn apply_diff_child_diff_test() {
     dom.outer_html(container),
     "<div><div><div>I'm updated!</div></div></div>",
   )
+}
+
+pub fn apply_diff_insert_attribute_test() {
+  jsdom.init()
+
+  let container = dom.create(element("div", [], [element("button", [], [])]))
+
+  dom.apply_diff(
+    container,
+    ChildDiff(
+      index: 0,
+      attr_diff: [InsertKey(key: "disabled", attribute: ABool(True))],
+      diff: [],
+    ),
+  )
+
+  should_equal(
+    dom.outer_html(container),
+    "<div><button disabled=\"true\"></button></div>",
+  )
+}
+
+pub fn apply_diff_delete_attribute_test() {
+  jsdom.init()
+
+  let container =
+    dom.create(element(
+      "div",
+      [],
+      [element("button", [#("disabled", ABool(True))], [])],
+    ))
+
+  should_equal(
+    dom.outer_html(container),
+    "<div><button disabled=\"true\"></button></div>",
+  )
+
+  dom.apply_diff(
+    container,
+    ChildDiff(index: 0, attr_diff: [DeleteKey(key: "disabled")], diff: []),
+  )
+
+  should_equal(dom.outer_html(container), "<div><button></button></div>")
 }

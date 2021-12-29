@@ -4,6 +4,7 @@ import dom
 import gleam/io
 import jsdom
 import gleam/option.{None, Some}
+import attribute.{ABool, AText}
 
 pub fn node_text_render_test() {
   let html = to_html(text("hello"))
@@ -21,7 +22,7 @@ pub fn node_attributes_render_test() {
   let html =
     to_html(element(
       "button",
-      [#("disabled", "true"), #("class", "my-button")],
+      [#("disabled", ABool(True)), #("class", AText("my-button"))],
       [Text(value: "Click me!")],
     ))
 
