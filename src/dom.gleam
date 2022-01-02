@@ -8,8 +8,10 @@ import gleam/int
 import gleam/iterator
 import gleam/map
 import diff.{
-  AttrDiff, ChildDiff, Delete, DeleteKey, Diff, Insert, InsertKey, ReplaceText,
+  AddEventListener, AttrDiff, ChildDiff, Delete, DeleteKey, Diff, Insert, InsertKey,
+  RemoveEventListener, ReplaceText,
 }
+import gleam/dynamic.{Dynamic}
 
 /// Represents a DOM [Element](https://developer.mozilla.org/en-US/docs/Web/API/Element).
 pub external type DOMElement
@@ -46,6 +48,12 @@ external fn remove_attribute(DOMElement, String) -> Nil =
 
 external fn set_attribute(DOMElement, String, String) -> Nil =
   "./dom_ffi.js" "setAttribute"
+
+external fn add_event_listener(DOMElement, String, fn(Dynamic) -> Nil) -> Nil =
+  "./dom_ffi.js" "addEventListener"
+
+external fn remove_event_listener(DOMElement, String, fn(Dynamic) -> Nil) -> Nil =
+  "./dom_ffi.js" "removeEventListener"
 
 /// Returns the value of [outerHTML](https://developer.mozilla.org/en-US/docs/Web/API/Element/outerHTML)
 /// for the provided `DOMElement`
@@ -116,5 +124,9 @@ fn apply_attribute_diff(node: DOMElement, attr_diff: AttrDiff) {
     DeleteKey(key: key) -> remove_attribute(node, key)
     InsertKey(key: key, attribute: attribute) ->
       set_attribute(node, key, attribute_to_string(attribute))
+    AddEventListener(key: key, handler: handler) ->
+      add_event_listener(node, key, handler)
+    RemoveEventListener(key: key, handler: handler) ->
+      remove_event_listener(node, key, handler)
   }
 }

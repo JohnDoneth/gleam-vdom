@@ -9,6 +9,7 @@ import gleam/iterator
 import gleam/io
 import gleam/map.{Map}
 import gleam/string
+import gleam/dynamic.{Dynamic}
 
 pub type Diff {
   /// Delete a child node at `index`.
@@ -26,6 +27,8 @@ pub type AttrDiff {
   DeleteKey(key: String)
   /// Set the attribute with `key` to the value of `attribute`.
   InsertKey(key: String, attribute: Attribute)
+  AddEventListener(key: String, handler: fn(Dynamic) -> Nil)
+  RemoveEventListener(key: String, handler: fn(Dynamic) -> Nil)
 }
 
 fn changed(node1: VDOM, node2: VDOM) -> Bool {
@@ -126,12 +129,6 @@ fn diff_children(
     })
 }
 
-fn inspect(value: anything, label: String) -> anything {
-  io.print(string.append(label, ": "))
-  io.debug(value)
-  value
-}
-
 fn diff_attributes(
   new_attrs: Map(String, Attribute),
   old_attrs: Map(String, Attribute),
@@ -148,8 +145,14 @@ fn diff_attributes(
       case map.get(new_attrs, key) {
         Ok(new_value) ->
           case new_value == value {
-            True -> list.append(acc, [InsertKey(key: key, attribute: value)])
-            False -> acc
+            True ->
+              case map.has_key(old_attrs, key) {
+                True -> acc
+                False ->
+                  list.append(acc, [InsertKey(key: key, attribute: new_value)])
+              }
+            False ->
+              list.append(acc, [InsertKey(key: key, attribute: new_value)])
           }
         Error(Nil) -> list.append(acc, [DeleteKey(key: key)])
       }

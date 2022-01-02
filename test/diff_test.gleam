@@ -1,4 +1,6 @@
-import vdom.{AText, Element, Text, element, element_, text, to_html}
+import vdom.{
+  AEventListener, AText, Element, Text, element, element_, text, to_html,
+}
 import node_assert.{should_equal}
 import dom
 import gleam/io
@@ -101,6 +103,17 @@ pub fn diff_attribute_delete_test() {
     diffs,
     [ChildDiff(index: 0, attr_diff: [DeleteKey(key: "key")], diff: [])],
   )
+}
+
+pub fn diff_attribute_delete2_test() {
+  let listener = AEventListener(fn(event) { Nil })
+
+  let diffs =
+    diff(
+      new: Some(element_("p", [#("key", listener)])),
+      old: Some(element_("p", [#("key", listener)])),
+    )
+  should_equal(diffs, [])
 }
 
 pub fn diff_update_existing_attribute_test() {

@@ -4,6 +4,7 @@
 import gleam/map.{Map}
 import gleam/string
 import gleam/list
+import gleam/dynamic.{Dynamic}
 
 /// Represents a virtual DOM element. 
 ///
@@ -26,6 +27,8 @@ pub type Attribute {
   AText(String)
   /// A boolean attribute.
   ABool(Bool)
+  /// An event listener.
+  AEventListener(fn(Dynamic) -> Nil)
 }
 
 pub fn attribute_to_string(attribute: Attribute) -> String {
