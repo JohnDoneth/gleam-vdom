@@ -1,14 +1,14 @@
-import vdom.{
+import gleam_vdom/vdom.{
   ABool, AEventListener, AText, Element, Text, element, element_, text, to_html,
 }
+import gleam_vdom/dom
+import gleam_vdom/diff.{
+  ChildDiff, Delete, DeleteKey, Insert, InsertKey, RemoveEventListener, ReplaceText,
+}
 import node_assert.{should_equal}
-import dom
 import gleam/io
 import jsdom
 import gleam/option.{None, Some}
-import diff.{
-  ChildDiff, Delete, DeleteKey, Insert, InsertKey, RemoveEventListener, ReplaceText,
-}
 import testing.{child_node_at_index_unchecked, get_global, set_global}
 
 pub fn apply_diff_insert_test() {

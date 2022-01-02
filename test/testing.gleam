@@ -1,4 +1,4 @@
-import dom.{DOMElement}
+import gleam_vdom/dom.{DOMElement}
 
 pub external fn set_global(Bool) -> Nil =
   "./testing_ffi.js" "setGlobal"
