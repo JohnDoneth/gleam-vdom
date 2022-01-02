@@ -51,3 +51,11 @@ export function setAttribute(element, key, value) {
 export function outerHTML(element) {
   return element.outerHTML;
 }
+
+export function addEventListener(element, type, listener) {
+  element.addEventListener(type, listener);
+}
+
+export function removeEventListener(element, type, listener) {
+  element.removeEventListener(type, listener);
+}

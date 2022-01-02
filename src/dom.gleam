@@ -1,6 +1,6 @@
 //// Module for interfacing with the non-virtual DOM.
 
-import vdom.{Attribute, Element, Text, VDOM, attribute_to_string}
+import vdom.{AEventListener, Attribute, Element, Text, VDOM, attribute_to_string}
 import gleam/list
 import gleam/option.{None, Option, Some}
 import gleam/io
@@ -8,8 +8,10 @@ import gleam/int
 import gleam/iterator
 import gleam/map
 import diff.{
-  AttrDiff, ChildDiff, Delete, DeleteKey, Diff, Insert, InsertKey, ReplaceText,
+  AttrDiff, ChildDiff, Delete, DeleteKey, Diff, Insert, InsertKey, RemoveEventListener,
+  ReplaceText,
 }
+import gleam/dynamic.{Dynamic}
 
 /// Represents a DOM [Element](https://developer.mozilla.org/en-US/docs/Web/API/Element).
 pub external type DOMElement
@@ -47,6 +49,12 @@ external fn remove_attribute(DOMElement, String) -> Nil =
 external fn set_attribute(DOMElement, String, String) -> Nil =
   "./dom_ffi.js" "setAttribute"
 
+external fn add_event_listener(DOMElement, String, fn(Dynamic) -> Nil) -> Nil =
+  "./dom_ffi.js" "addEventListener"
+
+external fn remove_event_listener(DOMElement, String, fn(Dynamic) -> Nil) -> Nil =
+  "./dom_ffi.js" "removeEventListener"
+
 /// Returns the value of [outerHTML](https://developer.mozilla.org/en-US/docs/Web/API/Element/outerHTML)
 /// for the provided `DOMElement`
 pub external fn outer_html(DOMElement) -> String =
@@ -60,7 +68,12 @@ pub fn create(node: VDOM) -> DOMElement {
       attributes
       |> map.to_list()
       |> list.map(fn(key_pair: #(String, Attribute)) {
-        set_attribute(element, key_pair.0, attribute_to_string(key_pair.1))
+        case key_pair.1 {
+          AEventListener(handler) ->
+            add_event_listener(element, key_pair.0, handler)
+          _ ->
+            set_attribute(element, key_pair.0, attribute_to_string(key_pair.1))
+        }
       })
       children
       |> list.map(create)
@@ -115,6 +128,11 @@ fn apply_attribute_diff(node: DOMElement, attr_diff: AttrDiff) {
   case attr_diff {
     DeleteKey(key: key) -> remove_attribute(node, key)
     InsertKey(key: key, attribute: attribute) ->
-      set_attribute(node, key, attribute_to_string(attribute))
+      case attribute {
+        AEventListener(handler) -> add_event_listener(node, key, handler)
+        _ -> set_attribute(node, key, attribute_to_string(attribute))
+      }
+    RemoveEventListener(key: key, handler: handler) ->
+      remove_event_listener(node, key, handler)
   }
 }

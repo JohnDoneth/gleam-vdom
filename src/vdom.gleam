@@ -4,6 +4,7 @@
 import gleam/map.{Map}
 import gleam/string
 import gleam/list
+import gleam/dynamic.{Dynamic}
 
 /// Represents a virtual DOM element. 
 ///
@@ -26,6 +27,8 @@ pub type Attribute {
   AText(String)
   /// A boolean attribute.
   ABool(Bool)
+  /// An event listener.
+  AEventListener(fn(Dynamic) -> Nil)
 }
 
 pub fn attribute_to_string(attribute: Attribute) -> String {
@@ -33,6 +36,7 @@ pub fn attribute_to_string(attribute: Attribute) -> String {
     AText(text) -> text
     ABool(True) -> "true"
     ABool(False) -> "false"
+    AEventListener(_) -> "not implemented"
   }
 }
 
@@ -49,15 +53,20 @@ pub fn to_html(node: VDOM) -> String {
         |> map.fold(
           from: "",
           with: fn(acc, key, value) {
-            let rvalue =
-              "\""
-              |> string.append(attribute_to_string(value))
-              |> string.append("\"")
-            let pair =
-              key
-              |> string.append("=")
-              |> string.append(rvalue)
-            string.append(acc, string.append(" ", pair))
+            case value {
+              AEventListener(_) -> acc
+              _ -> {
+                let rvalue =
+                  "\""
+                  |> string.append(attribute_to_string(value))
+                  |> string.append("\"")
+                let pair =
+                  key
+                  |> string.append("=")
+                  |> string.append(rvalue)
+                string.append(acc, string.append(" ", pair))
+              }
+            }
           },
         )
       string.append("<", tag)

@@ -1,10 +1,15 @@
-import vdom.{AText, Element, Text, element, element_, text, to_html}
+import vdom.{
+  AEventListener, AText, Element, Text, element, element_, text, to_html,
+}
 import node_assert.{should_equal}
 import dom
 import gleam/io
 import jsdom
 import gleam/option.{None, Some}
-import diff.{ChildDiff, Delete, DeleteKey, Insert, InsertKey, ReplaceText, diff}
+import diff.{
+  ChildDiff, Delete, DeleteKey, Insert, InsertKey, RemoveEventListener, ReplaceText,
+  diff,
+}
 
 pub fn diff_none_test() {
   should_equal(diff(None, None), [])
@@ -100,6 +105,37 @@ pub fn diff_attribute_delete_test() {
   should_equal(
     diffs,
     [ChildDiff(index: 0, attr_diff: [DeleteKey(key: "key")], diff: [])],
+  )
+}
+
+pub fn diff_attribute_listeners_no_op_test() {
+  let listener = AEventListener(fn(event) { Nil })
+
+  let diffs =
+    diff(
+      new: Some(element_("p", [#("key", listener)])),
+      old: Some(element_("p", [#("key", listener)])),
+    )
+  should_equal(diffs, [])
+}
+
+pub fn diff_attribute_delete_event_listener_test() {
+  let listener = fn(event) { Nil }
+
+  let diffs =
+    diff(
+      new: Some(element_("p", [])),
+      old: Some(element_("p", [#("key", AEventListener(listener))])),
+    )
+  should_equal(
+    diffs,
+    [
+      ChildDiff(
+        index: 0,
+        attr_diff: [RemoveEventListener(key: "key", handler: listener)],
+        diff: [],
+      ),
+    ],
   )
 }
 

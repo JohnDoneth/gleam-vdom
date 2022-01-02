@@ -1,7 +1,7 @@
 //// Module for finding the set of `Diff`s required to to change one `VNode` into
 //// another `VNode`. 
 
-import vdom.{Attribute, Element, Text, VDOM}
+import vdom.{AEventListener, Attribute, Element, Text, VDOM}
 import gleam/option.{None, Option, Some}
 import gleam/list
 import gleam/int
@@ -9,6 +9,7 @@ import gleam/iterator
 import gleam/io
 import gleam/map.{Map}
 import gleam/string
+import gleam/dynamic.{Dynamic}
 
 pub type Diff {
   /// Delete a child node at `index`.
@@ -26,6 +27,8 @@ pub type AttrDiff {
   DeleteKey(key: String)
   /// Set the attribute with `key` to the value of `attribute`.
   InsertKey(key: String, attribute: Attribute)
+  /// Remove a specific event listener by event type and function value.
+  RemoveEventListener(key: String, handler: fn(Dynamic) -> Nil)
 }
 
 fn changed(node1: VDOM, node2: VDOM) -> Bool {
@@ -126,12 +129,6 @@ fn diff_children(
     })
 }
 
-fn inspect(value: anything, label: String) -> anything {
-  io.print(string.append(label, ": "))
-  io.debug(value)
-  value
-}
-
 fn diff_attributes(
   new_attrs: Map(String, Attribute),
   old_attrs: Map(String, Attribute),
@@ -148,10 +145,24 @@ fn diff_attributes(
       case map.get(new_attrs, key) {
         Ok(new_value) ->
           case new_value == value {
-            True -> list.append(acc, [InsertKey(key: key, attribute: value)])
-            False -> acc
+            True ->
+              case map.has_key(old_attrs, key) {
+                True -> acc
+                False ->
+                  list.append(acc, [InsertKey(key: key, attribute: new_value)])
+              }
+            False ->
+              list.append(acc, [InsertKey(key: key, attribute: new_value)])
           }
-        Error(Nil) -> list.append(acc, [DeleteKey(key: key)])
+        Error(Nil) ->
+          case value {
+            AEventListener(handler) ->
+              list.append(
+                acc,
+                [RemoveEventListener(key: key, handler: handler)],
+              )
+            _ -> list.append(acc, [DeleteKey(key: key)])
+          }
       }
     },
   )

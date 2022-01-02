@@ -44,6 +44,7 @@ let tests = await importTestsFromModules([
   "./target/lib/gleam_vdom/vdom_test.js",
   "./target/lib/gleam_vdom/diff_test.js",
   "./target/lib/gleam_vdom/dom_test.js",
+  "./target/lib/gleam_vdom/integration_test.js",
 ]);
 
 let anyFailed = false;
@@ -60,9 +61,17 @@ Object.entries(tests).forEach(([test_name, test]) => {
           e.expected
         )}\n\tActual:   ${inspect(e.actual)}\n`
       );
+    } else if (e.gleam_error) {
+      process.stdout.write(` ${red("failed:")}\n`);
+      console.log("\t" + e);
+      console.log("\t" + e.stack);
+      console.log("\t" + e.gleam_error);
+      console.log("\t location: src/" + e.module + ".gleam:" + e.line);
+      console.log("\t function:" + e.fn);
     } else {
       process.stdout.write(` ${red("failed:")}\n`);
       console.log("\t" + e);
+      console.log("\t" + e.stack);
     }
     anyFailed = true;
   }
