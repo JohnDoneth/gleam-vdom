@@ -1,13 +1,22 @@
-//
-// Imports the compiled test module file and executes functions with names
-// ending with `_test`.
-//
+import { inspect } from "./inspect.js";
 
 // function inspect(any) {
 //   console.log(any);
 //   return any;
 // }
 
+function green(text) {
+  return "\x1B[32m" + text + "\x1B[39m";
+}
+
+function red(text) {
+  return "\x1B[31m" + text + "\x1B[39m";
+}
+
+//
+// Imports the compiled test module file and executes functions with names
+// ending with `_test`.
+//
 async function importTestsFromModules(modulePaths) {
   const modules = await Promise.all(
     modulePaths.map((module_path) => import(module_path))
@@ -43,16 +52,16 @@ Object.entries(tests).forEach(([test_name, test]) => {
   try {
     process.stdout.write(`test ${test_name}`);
     test.call();
-    process.stdout.write(` passed ✔️\n`);
+    process.stdout.write(` ${green("passed ✔️")}\n`);
   } catch (e) {
     if (e.expected && e.actual) {
       console.log(
-        ` failed: \n\tExpected: ${stringify(
+        ` ${red("failed ❌")} \n\tExpected: ${inspect(
           e.expected
-        )}\n\tActual:   ${stringify(e.actual)}\n`
+        )}\n\tActual:   ${inspect(e.actual)}\n`
       );
     } else {
-      process.stdout.write(` failed:\n`);
+      process.stdout.write(` ${red("failed:")}\n`);
       console.log("\t" + e);
     }
     anyFailed = true;

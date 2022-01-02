@@ -1,12 +1,15 @@
 //// Module for interfacing with the non-virtual DOM.
 
-import vdom.{Element, Text, VDOM}
+import vdom.{Attribute, Element, Text, VDOM, attribute_to_string}
 import gleam/list
 import gleam/option.{None, Option, Some}
 import gleam/io
 import gleam/int
 import gleam/iterator
-import diff.{ChildDiff, Delete, Diff, Insert, ReplaceText}
+import gleam/map
+import diff.{
+  AttrDiff, ChildDiff, Delete, DeleteKey, Diff, Insert, InsertKey, ReplaceText,
+}
 
 /// Represents a DOM [Element](https://developer.mozilla.org/en-US/docs/Web/API/Element).
 pub external type DOMElement
@@ -38,6 +41,12 @@ external fn children_length(DOMElement) -> Int =
 external fn set_text_content(DOMElement, String) -> Nil =
   "./dom_ffi.js" "setTextContent"
 
+external fn remove_attribute(DOMElement, String) -> Nil =
+  "./dom_ffi.js" "removeAttribute"
+
+external fn set_attribute(DOMElement, String, String) -> Nil =
+  "./dom_ffi.js" "setAttribute"
+
 /// Returns the value of [outerHTML](https://developer.mozilla.org/en-US/docs/Web/API/Element/outerHTML)
 /// for the provided `DOMElement`
 pub external fn outer_html(DOMElement) -> String =
@@ -46,8 +55,13 @@ pub external fn outer_html(DOMElement) -> String =
 /// Creates a real DOM element from a virtual node; Including all of it's children.
 pub fn create(node: VDOM) -> DOMElement {
   case node {
-    Element(tag: tag, children: children, ..) -> {
+    Element(tag: tag, children: children, attributes: attributes) -> {
       let element = create_element(tag)
+      attributes
+      |> map.to_list()
+      |> list.map(fn(key_pair: #(String, Attribute)) {
+        set_attribute(element, key_pair.0, attribute_to_string(key_pair.1))
+      })
       children
       |> list.map(create)
       |> list.map(fn(child) { append_child(element, child) })
@@ -85,10 +99,22 @@ pub fn apply_diff(node: DOMElement, diff: Diff) -> DOMElement {
       set_text_content(child, text)
       node
     }
-    ChildDiff(index: index, attr_diff: _attr_diff_list, diff: diff_list) -> {
+    ChildDiff(index: index, attr_diff: attr_diff_list, diff: diff_list) -> {
       let child = child_node_at_index_unchecked(node, index)
+      list.map(
+        attr_diff_list,
+        fn(attr_diff) { apply_attribute_diff(child, attr_diff) },
+      )
       list.map(diff_list, fn(diff) { apply_diff(child, diff) })
       node
     }
+  }
+}
+
+fn apply_attribute_diff(node: DOMElement, attr_diff: AttrDiff) {
+  case attr_diff {
+    DeleteKey(key: key) -> remove_attribute(node, key)
+    InsertKey(key: key, attribute: attribute) ->
+      set_attribute(node, key, attribute_to_string(attribute))
   }
 }

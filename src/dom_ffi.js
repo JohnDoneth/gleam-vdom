@@ -40,6 +40,14 @@ export function setTextContent(element, text) {
   element.textContent = text;
 }
 
+export function removeAttribute(element, key) {
+  element.removeAttribute(key);
+}
+
+export function setAttribute(element, key, value) {
+  element.setAttribute(key, value);
+}
+
 export function outerHTML(element) {
   return element.outerHTML;
 }

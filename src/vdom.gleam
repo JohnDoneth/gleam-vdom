@@ -5,13 +5,39 @@ import gleam/map.{Map}
 import gleam/string
 import gleam/list
 
+/// Represents a virtual DOM element. 
+///
+/// It is considered "virtual" as it only / represents the state the DOM will be
+/// in once it is applied to the browser by patching. See the `dom` module for those functions.
+///
+/// The `diff` module uses these VDOM elements as well, by producing `diffs`. Diffs are a
+/// minimal set of changes which can be applied to the real DOM to conform it to
+/// the provided VDOM with minimal API calls to the browser itself.
 pub type VDOM {
-  Element(tag: String, attributes: Map(String, String), children: List(VDOM))
+  /// Element with a tag with optional attributes and children.
+  Element(tag: String, attributes: Map(String, Attribute), children: List(VDOM))
+  /// Text element.
   Text(value: String)
 }
 
+/// Type constraining the different types of attribute values.
+pub type Attribute {
+  /// A String attribute.
+  AText(String)
+  /// A boolean attribute.
+  ABool(Bool)
+}
+
+pub fn attribute_to_string(attribute: Attribute) -> String {
+  case attribute {
+    AText(text) -> text
+    ABool(True) -> "true"
+    ABool(False) -> "false"
+  }
+}
+
 /// Render a `VDOM` to its HTML representation.
-pub fn to_html(node: VDOM) {
+pub fn to_html(node: VDOM) -> String {
   case node {
     Element(tag: tag, attributes: attributes, children: children) -> {
       let rendered_body =
@@ -25,7 +51,7 @@ pub fn to_html(node: VDOM) {
           with: fn(acc, key, value) {
             let rvalue =
               "\""
-              |> string.append(value)
+              |> string.append(attribute_to_string(value))
               |> string.append("\"")
             let pair =
               key
@@ -50,14 +76,14 @@ pub fn to_html(node: VDOM) {
 /// Helper function for creating a virtual DOM element.
 pub fn element(
   tag: String,
-  attributes: List(#(String, String)),
+  attributes: List(#(String, Attribute)),
   children: List(VDOM),
 ) -> VDOM {
   Element(tag: tag, attributes: map.from_list(attributes), children: children)
 }
 
 /// Same as `element` without children.
-pub fn element_(tag: String, attributes: List(#(String, String))) -> VDOM {
+pub fn element_(tag: String, attributes: List(#(String, Attribute))) -> VDOM {
   Element(tag: tag, attributes: map.from_list(attributes), children: [])
 }
 

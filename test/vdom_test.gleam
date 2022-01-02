@@ -1,4 +1,4 @@
-import vdom.{Element, Text, element, element_, text, to_html}
+import vdom.{ABool, AText, Element, Text, element, element_, text, to_html}
 import node_assert.{should_equal}
 import dom
 import gleam/io
@@ -21,7 +21,7 @@ pub fn node_attributes_render_test() {
   let html =
     to_html(element(
       "button",
-      [#("disabled", "true"), #("class", "my-button")],
+      [#("disabled", ABool(True)), #("class", AText("my-button"))],
       [Text(value: "Click me!")],
     ))
 
