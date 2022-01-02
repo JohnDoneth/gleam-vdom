@@ -28,8 +28,8 @@ Patching the browser DOM using a set of diffs.
 ```gleam
 let container: DOMElement = get_element_by_id("#app")
 
-let initial_state: VDOM = element("p", [], [text("starting_text")])
-let desired_state: VDOM = element("p", [], [text("new_text")])
+let initial_state: VDOM = element("p", [], [text("starting text")])
+let desired_state: VDOM = element("p", [], [text("new text!")])
 
 dom.patch(
     container,
@@ -39,6 +39,8 @@ dom.patch(
     )
 )
 
+should_equal(dom.outer_html(container), "<div id=\"app\"><p>starting text</p></div>")
+
 dom.patch(
     container,
     diff(
@@ -47,7 +49,7 @@ dom.patch(
     )
 )
 
-should_equal(dom.outer_html(container), "<div id=\"app\"><p>new_text!</p></div>")
+should_equal(dom.outer_html(container), "<div id=\"app\"><p>new text!</p></div>")
 ```
 
 ## References
