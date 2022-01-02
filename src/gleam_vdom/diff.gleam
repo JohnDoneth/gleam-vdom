@@ -1,7 +1,7 @@
 //// Module for finding the set of `Diff`s required to to change one `VNode` into
 //// another `VNode`. 
 
-import vdom.{AEventListener, Attribute, Element, Text, VDOM}
+import gleam_vdom/vdom.{AEventListener, Attribute, Element, Text, VDOM}
 import gleam/option.{None, Option, Some}
 import gleam/list
 import gleam/int
