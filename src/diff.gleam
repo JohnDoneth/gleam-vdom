@@ -74,11 +74,7 @@ fn diff_(
               let result =
                 list.append(
                   acc,
-                  diff_children(
-                    new_node_children,
-                    old_node_children,
-                    acc,
-                  ),
+                  diff_children(new_node_children, old_node_children, acc),
                 )
               case list.length(attr_diff) > 0 {
                 True ->
