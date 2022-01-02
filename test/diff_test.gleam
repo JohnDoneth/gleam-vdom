@@ -4,7 +4,7 @@ import dom
 import gleam/io
 import jsdom
 import gleam/option.{None, Some}
-import diff.{ChildDiff, Delete, Insert, ReplaceText, diff}
+import diff.{ChildDiff, Delete, DeleteKey, Insert, InsertKey, ReplaceText, diff}
 import attribute.{AText}
 
 pub fn diff_none_test() {
@@ -80,10 +80,44 @@ pub fn diff_attribute_insert_test() {
       new: Some(element_("p", [#("key", AText("value"))])),
       old: Some(element_("p", [])),
     )
-  should_equal(diffs, [ChildDiff(index: 0, attr_diff: [], diff: [])])
-  //   Delete(index: 0),
-  //   Insert(
-  //     index: 0,
-  //     vdom: element("p", [], [text("new_text_in_element")]),
-  //   ),
+  should_equal(
+    diffs,
+    [
+      ChildDiff(
+        index: 0,
+        attr_diff: [InsertKey(key: "key", attribute: AText("value"))],
+        diff: [],
+      ),
+    ],
+  )
+}
+
+pub fn diff_attribute_delete_test() {
+  let diffs =
+    diff(
+      new: Some(element_("p", [])),
+      old: Some(element_("p", [#("key", AText("value"))])),
+    )
+  should_equal(
+    diffs,
+    [ChildDiff(index: 0, attr_diff: [DeleteKey(key: "key")], diff: [])],
+  )
+}
+
+pub fn diff_update_existing_attribute_test() {
+  let diffs =
+    diff(
+      new: Some(element_("p", [#("common_key", AText("new_value"))])),
+      old: Some(element_("p", [#("common_key", AText("old_value"))])),
+    )
+  should_equal(
+    diffs,
+    [
+      ChildDiff(
+        index: 0,
+        attr_diff: [InsertKey(key: "common_key", attribute: AText("new_value"))],
+        diff: [],
+      ),
+    ],
+  )
 }

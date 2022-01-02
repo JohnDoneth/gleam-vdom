@@ -40,7 +40,7 @@ async function copyJs(name, dir) {
   let out = outDir(name);
   let files = await readdir(inDir);
   files.map(async (file) => {
-    if (file.endsWith(".js")) {
+    if (file.endsWith(".js") || file.endsWith(".mjs")) {
       await copyFile(join(inDir, file), join(out, file));
     }
   });

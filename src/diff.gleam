@@ -2,13 +2,14 @@
 //// another `VNode`. 
 
 import vdom.{Element, Text, VDOM}
+import attribute.{Attribute}
 import gleam/option.{None, Option, Some}
 import gleam/list
 import gleam/int
 import gleam/iterator
 import gleam/io
 import gleam/map.{Map}
-import attribute.{Attribute}
+import gleam/string
 
 pub type Diff {
   /// Delete a child node at `index`.
@@ -68,16 +69,32 @@ fn diff_(
               children: old_node_children,
               attributes: old_attrs,
               ..,
-            ) ->
-              list.append(
-                acc,
-                diff_children(
-                  new_node_children,
-                  old_node_children,
-                  diff_attributes(new_attrs, old_attrs),
+            ) -> {
+              let attr_diff = diff_attributes(new_attrs, old_attrs)
+              let result =
+                list.append(
                   acc,
-                ),
-              )
+                  diff_children(
+                    new_node_children,
+                    old_node_children,
+                    acc,
+                  ),
+                )
+              case list.length(attr_diff) > 0 {
+                True ->
+                  list.append(
+                    result,
+                    [
+                      ChildDiff(
+                        index: 0,
+                        attr_diff: diff_attributes(new_attrs, old_attrs),
+                        diff: [],
+                      ),
+                    ],
+                  )
+                False -> result
+              }
+            }
           }
       }
 
@@ -88,7 +105,7 @@ fn diff_(
 fn diff_children(
   new_children: List(VDOM),
   old_children: List(VDOM),
-  attr_diffs: List(AttrDiff),
+  //attr_diffs: List(AttrDiff),
   acc: List(Diff),
 ) -> List(Diff) {
   let new_length = list.length(new_children)
@@ -104,6 +121,7 @@ fn diff_children(
       let old_child =
         list.at(in: old_children, get: i)
         |> option.from_result()
+
       ChildDiff(
         index: i,
         attr_diff: [],
@@ -112,29 +130,33 @@ fn diff_children(
     })
 }
 
+fn inspect(value: anything, label: String) -> anything {
+  io.print(string.append(label, ": "))
+  io.debug(value)
+  value
+}
+
 fn diff_attributes(
   new_attrs: Map(String, Attribute),
   old_attrs: Map(String, Attribute),
 ) -> List(AttrDiff) {
-//   io.debug(new_attrs)
-//   io.debug(old_attrs)
+  let over = list.append(map.to_list(old_attrs), map.to_list(new_attrs))
 
-  map.fold(over: new_attrs, from: [], with: fn(acc, new_key, new_value) {
+  list.fold(
+    over: over,
+    from: [],
+    with: fn(acc, v: #(String, Attribute)) {
+      let key = v.0
+      let value = v.1
 
-    case map.get(old_attrs, new_key) {
-        Ok(old_value) -> {
-            case old_value == new_value {
-                True -> acc
-                False -> list.append(acc, [
-                    InsertKey(key: new_key, attribute: new_value)
-                ])
-            }
-        }
-        Error(Nil) -> 
-            list.append(acc, [
-                    DeleteKey(key: new_key)
-                ])
-    }
-
-  })
+      case map.get(new_attrs, key) {
+        Ok(new_value) ->
+          case new_value == value {
+            True -> list.append(acc, [InsertKey(key: key, attribute: value)])
+            False -> acc
+          }
+        Error(Nil) -> list.append(acc, [DeleteKey(key: key)])
+      }
+    },
+  )
 }
