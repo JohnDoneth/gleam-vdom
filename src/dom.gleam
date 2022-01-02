@@ -8,8 +8,8 @@ import gleam/int
 import gleam/iterator
 import gleam/map
 import diff.{
-  AttrDiff, ChildDiff, Delete, DeleteKey, Diff, Insert, InsertKey,
-  RemoveEventListener, ReplaceText,
+  AttrDiff, ChildDiff, Delete, DeleteKey, Diff, Insert, InsertKey, RemoveEventListener,
+  ReplaceText,
 }
 import gleam/dynamic.{Dynamic}
 
@@ -131,7 +131,7 @@ fn apply_attribute_diff(node: DOMElement, attr_diff: AttrDiff) {
       case attribute {
         AEventListener(handler) -> add_event_listener(node, key, handler)
         _ -> set_attribute(node, key, attribute_to_string(attribute))
-      }      
+      }
     RemoveEventListener(key: key, handler: handler) ->
       remove_event_listener(node, key, handler)
   }

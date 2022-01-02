@@ -6,4 +6,3 @@
 /// running in the NodeJS environment.
 pub external fn init() -> Nil =
   "./jsdom_ffi.js" "init"
-

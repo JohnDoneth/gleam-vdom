@@ -7,8 +7,8 @@ import gleam/io
 import jsdom
 import gleam/option.{None, Some}
 import diff.{
-  ChildDiff, Delete, DeleteKey, Insert, InsertKey, RemoveEventListener,
-  ReplaceText, diff,
+  ChildDiff, Delete, DeleteKey, Insert, InsertKey, RemoveEventListener, ReplaceText,
+  diff,
 }
 
 pub fn diff_none_test() {

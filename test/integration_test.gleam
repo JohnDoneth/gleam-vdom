@@ -7,8 +7,8 @@ import gleam/io
 import jsdom
 import gleam/option.{None, Some}
 import diff.{
-  ChildDiff, Delete, DeleteKey, Insert, InsertKey, RemoveEventListener,
-  ReplaceText, diff,
+  ChildDiff, Delete, DeleteKey, Insert, InsertKey, RemoveEventListener, ReplaceText,
+  diff,
 }
 import testing.{child_node_at_index_unchecked, get_global, set_global}
 
