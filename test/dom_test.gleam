@@ -1,12 +1,13 @@
-import vdom.{ABool, AText, Element, Text, element, element_, text, to_html}
+import vdom.{
+  ABool, AEventListener, AText, Element, Text, element, element_, text, to_html,
+}
 import node_assert.{should_equal}
 import dom
 import gleam/io
 import jsdom
 import gleam/option.{None, Some}
 import diff.{
-  AddEventListener, ChildDiff, Delete, DeleteKey, Insert, InsertKey, RemoveEventListener,
-  ReplaceText,
+  ChildDiff, Delete, DeleteKey, Insert, InsertKey, RemoveEventListener, ReplaceText,
 }
 import testing.{child_node_at_index_unchecked, get_global, set_global}
 
@@ -187,7 +188,10 @@ pub fn apply_diff_add_event_listener_test() {
       index: 0,
       attr_diff: [
         // This event listener will toggle the global to True when clicked.
-        AddEventListener(key: "click", handler: fn(_event) { set_global(True) }),
+        InsertKey(
+          key: "click",
+          attribute: AEventListener(fn(_event) { set_global(True) }),
+        ),
       ],
       diff: [],
     ),
@@ -216,7 +220,7 @@ pub fn apply_diff_add_and_remove_event_listener_test() {
     ChildDiff(
       index: 0,
       attr_diff: [
-        AddEventListener(key: "click", handler: handler),
+        InsertKey(key: "click", attribute: AEventListener(handler)),
         RemoveEventListener(key: "click", handler: handler),
       ],
       diff: [],

@@ -36,6 +36,7 @@ pub fn attribute_to_string(attribute: Attribute) -> String {
     AText(text) -> text
     ABool(True) -> "true"
     ABool(False) -> "false"
+    AEventListener(_) -> "not implemented"
   }
 }
 
@@ -52,15 +53,20 @@ pub fn to_html(node: VDOM) -> String {
         |> map.fold(
           from: "",
           with: fn(acc, key, value) {
-            let rvalue =
-              "\""
-              |> string.append(attribute_to_string(value))
-              |> string.append("\"")
-            let pair =
-              key
-              |> string.append("=")
-              |> string.append(rvalue)
-            string.append(acc, string.append(" ", pair))
+            case value {
+              AEventListener(_) -> acc
+              _ -> {
+                let rvalue =
+                  "\""
+                  |> string.append(attribute_to_string(value))
+                  |> string.append("\"")
+                let pair =
+                  key
+                  |> string.append("=")
+                  |> string.append(rvalue)
+                string.append(acc, string.append(" ", pair))
+              }
+            }
           },
         )
       string.append("<", tag)

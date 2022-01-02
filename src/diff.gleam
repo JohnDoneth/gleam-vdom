@@ -1,7 +1,7 @@
 //// Module for finding the set of `Diff`s required to to change one `VNode` into
 //// another `VNode`. 
 
-import vdom.{Attribute, Element, Text, VDOM}
+import vdom.{AEventListener, Attribute, Element, Text, VDOM}
 import gleam/option.{None, Option, Some}
 import gleam/list
 import gleam/int
@@ -27,7 +27,7 @@ pub type AttrDiff {
   DeleteKey(key: String)
   /// Set the attribute with `key` to the value of `attribute`.
   InsertKey(key: String, attribute: Attribute)
-  AddEventListener(key: String, handler: fn(Dynamic) -> Nil)
+  /// Remove a specific event listener by event type and function value.
   RemoveEventListener(key: String, handler: fn(Dynamic) -> Nil)
 }
 
@@ -154,7 +154,15 @@ fn diff_attributes(
             False ->
               list.append(acc, [InsertKey(key: key, attribute: new_value)])
           }
-        Error(Nil) -> list.append(acc, [DeleteKey(key: key)])
+        Error(Nil) ->
+          case value {
+            AEventListener(handler) ->
+              list.append(
+                acc,
+                [RemoveEventListener(key: key, handler: handler)],
+              )
+            _ -> list.append(acc, [DeleteKey(key: key)])
+          }
       }
     },
   )

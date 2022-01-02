@@ -11,4 +11,3 @@ export function getGlobal() {
 export function click(element) {
   element.click();
 }
-

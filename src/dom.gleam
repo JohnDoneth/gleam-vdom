@@ -1,6 +1,6 @@
 //// Module for interfacing with the non-virtual DOM.
 
-import vdom.{Attribute, Element, Text, VDOM, attribute_to_string}
+import vdom.{AEventListener, Attribute, Element, Text, VDOM, attribute_to_string}
 import gleam/list
 import gleam/option.{None, Option, Some}
 import gleam/io
@@ -8,7 +8,7 @@ import gleam/int
 import gleam/iterator
 import gleam/map
 import diff.{
-  AddEventListener, AttrDiff, ChildDiff, Delete, DeleteKey, Diff, Insert, InsertKey,
+  AttrDiff, ChildDiff, Delete, DeleteKey, Diff, Insert, InsertKey,
   RemoveEventListener, ReplaceText,
 }
 import gleam/dynamic.{Dynamic}
@@ -68,7 +68,12 @@ pub fn create(node: VDOM) -> DOMElement {
       attributes
       |> map.to_list()
       |> list.map(fn(key_pair: #(String, Attribute)) {
-        set_attribute(element, key_pair.0, attribute_to_string(key_pair.1))
+        case key_pair.1 {
+          AEventListener(handler) ->
+            add_event_listener(element, key_pair.0, handler)
+          _ ->
+            set_attribute(element, key_pair.0, attribute_to_string(key_pair.1))
+        }
       })
       children
       |> list.map(create)
@@ -123,9 +128,10 @@ fn apply_attribute_diff(node: DOMElement, attr_diff: AttrDiff) {
   case attr_diff {
     DeleteKey(key: key) -> remove_attribute(node, key)
     InsertKey(key: key, attribute: attribute) ->
-      set_attribute(node, key, attribute_to_string(attribute))
-    AddEventListener(key: key, handler: handler) ->
-      add_event_listener(node, key, handler)
+      case attribute {
+        AEventListener(handler) -> add_event_listener(node, key, handler)
+        _ -> set_attribute(node, key, attribute_to_string(attribute))
+      }      
     RemoveEventListener(key: key, handler: handler) ->
       remove_event_listener(node, key, handler)
   }
