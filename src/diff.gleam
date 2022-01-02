@@ -1,8 +1,7 @@
 //// Module for finding the set of `Diff`s required to to change one `VNode` into
 //// another `VNode`. 
 
-import vdom.{Element, Text, VDOM}
-import attribute.{Attribute}
+import vdom.{Attribute, Element, Text, VDOM}
 import gleam/option.{None, Option, Some}
 import gleam/list
 import gleam/int
@@ -23,8 +22,9 @@ pub type Diff {
 }
 
 pub type AttrDiff {
+  /// Delete attribute with the key of `key`.
   DeleteKey(key: String)
-  // ReplaceKey(key: String, value)
+  /// Set the attribute with `key` to the value of `attribute`.
   InsertKey(key: String, attribute: Attribute)
 }
 

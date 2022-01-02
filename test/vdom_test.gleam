@@ -1,10 +1,9 @@
-import vdom.{Element, Text, element, element_, text, to_html}
+import vdom.{ABool, AText, Element, Text, element, element_, text, to_html}
 import node_assert.{should_equal}
 import dom
 import gleam/io
 import jsdom
 import gleam/option.{None, Some}
-import attribute.{ABool, AText}
 
 pub fn node_text_render_test() {
   let html = to_html(text("hello"))

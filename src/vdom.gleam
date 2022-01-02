@@ -4,11 +4,36 @@
 import gleam/map.{Map}
 import gleam/string
 import gleam/list
-import attribute.{Attribute}
 
+/// Represents a virtual DOM element. 
+///
+/// It is considered "virtual" as it only / represents the state the DOM will be
+/// in once it is applied to the browser by patching. See the `dom` module for those functions.
+///
+/// The `diff` module uses these VDOM elements as well, by producing `diffs`. Diffs are a
+/// minimal set of changes which can be applied to the real DOM to conform it to
+/// the provided VDOM with minimal API calls to the browser itself.
 pub type VDOM {
+  /// Element with a tag with optional attributes and children.
   Element(tag: String, attributes: Map(String, Attribute), children: List(VDOM))
+  /// Text element.
   Text(value: String)
+}
+
+/// Type constraining the different types of attribute values.
+pub type Attribute {
+  /// A String attribute.
+  AText(String)
+  /// A boolean attribute.
+  ABool(Bool)
+}
+
+pub fn attribute_to_string(attribute: Attribute) -> String {
+  case attribute {
+    AText(text) -> text
+    ABool(True) -> "true"
+    ABool(False) -> "false"
+  }
 }
 
 /// Render a `VDOM` to its HTML representation.
@@ -26,7 +51,7 @@ pub fn to_html(node: VDOM) -> String {
           with: fn(acc, key, value) {
             let rvalue =
               "\""
-              |> string.append(attribute.to_string(value))
+              |> string.append(attribute_to_string(value))
               |> string.append("\"")
             let pair =
               key

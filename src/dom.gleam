@@ -1,16 +1,15 @@
 //// Module for interfacing with the non-virtual DOM.
 
-import vdom.{Element, Text, VDOM}
+import vdom.{Attribute, Element, Text, VDOM, attribute_to_string}
 import gleam/list
 import gleam/option.{None, Option, Some}
 import gleam/io
 import gleam/int
 import gleam/iterator
+import gleam/map
 import diff.{
   AttrDiff, ChildDiff, Delete, DeleteKey, Diff, Insert, InsertKey, ReplaceText,
 }
-import attribute.{Attribute}
-import gleam/map
 
 /// Represents a DOM [Element](https://developer.mozilla.org/en-US/docs/Web/API/Element).
 pub external type DOMElement
@@ -61,7 +60,7 @@ pub fn create(node: VDOM) -> DOMElement {
       attributes
       |> map.to_list()
       |> list.map(fn(key_pair: #(String, Attribute)) {
-        set_attribute(element, key_pair.0, attribute.to_string(key_pair.1))
+        set_attribute(element, key_pair.0, attribute_to_string(key_pair.1))
       })
       children
       |> list.map(create)
@@ -116,6 +115,6 @@ fn apply_attribute_diff(node: DOMElement, attr_diff: AttrDiff) {
   case attr_diff {
     DeleteKey(key: key) -> remove_attribute(node, key)
     InsertKey(key: key, attribute: attribute) ->
-      set_attribute(node, key, attribute.to_string(attribute))
+      set_attribute(node, key, attribute_to_string(attribute))
   }
 }

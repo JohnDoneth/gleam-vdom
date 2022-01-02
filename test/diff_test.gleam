@@ -1,11 +1,10 @@
-import vdom.{Element, Text, element, element_, text, to_html}
+import vdom.{AText, Element, Text, element, element_, text, to_html}
 import node_assert.{should_equal}
 import dom
 import gleam/io
 import jsdom
 import gleam/option.{None, Some}
 import diff.{ChildDiff, Delete, DeleteKey, Insert, InsertKey, ReplaceText, diff}
-import attribute.{AText}
 
 pub fn diff_none_test() {
   should_equal(diff(None, None), [])

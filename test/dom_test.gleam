@@ -1,11 +1,10 @@
-import vdom.{Element, Text, element, element_, text, to_html}
+import vdom.{ABool, AText, Element, Text, element, element_, text, to_html}
 import node_assert.{should_equal}
 import dom
 import gleam/io
 import jsdom
 import gleam/option.{None, Some}
 import diff.{ChildDiff, Delete, DeleteKey, Insert, InsertKey, ReplaceText}
-import attribute.{ABool, AText}
 
 pub fn apply_diff_insert_test() {
   jsdom.init()
