@@ -6,6 +6,11 @@ import node_assert.{should_equal}
 import gleam/io
 import jsdom
 import gleam/option.{None, Some}
+import gleeunit
+
+pub fn main() {
+  gleeunit.main()
+}
 
 pub fn node_text_render_test() {
   let html = to_html(text("hello"))

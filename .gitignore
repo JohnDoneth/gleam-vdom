@@ -19,6 +19,9 @@ gen
 log
 logs
 rebar3.crashdump
+rebar.lock
 build
 node_modules
 target
+
+package-lock.json

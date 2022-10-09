@@ -2,14 +2,19 @@ import gleam_vdom/vdom.{
   AEventListener, AText, Element, Text, element, element_, text, to_html,
 }
 import gleam_vdom/diff.{
-  ChildDiff, Delete, DeleteKey, Insert, InsertKey, RemoveEventListener, ReplaceText,
-  diff,
+  ChildDiff, Delete, DeleteKey, Insert, InsertKey, RemoveEventListener,
+  ReplaceText, diff,
 }
 import gleam_vdom/dom
 import node_assert.{should_equal}
 import gleam/io
 import jsdom
 import gleam/option.{None, Some}
+import gleeunit
+
+pub fn main() {
+  gleeunit.main()
+}
 
 pub fn diff_none_test() {
   should_equal(diff(None, None), [])

@@ -1,3 +1,7 @@
 name = "gleam_vdom"
-dependencies = { gleam_stdlib = "~> 0.18" }
-dev-dependencies = { gleeunit = "~> 0.5" }
+target = "javascript"
+[dependencies]
+gleam_stdlib = "~> 0.21"
+
+[dev-dependencies]
+gleeunit = "~> 0.7"
