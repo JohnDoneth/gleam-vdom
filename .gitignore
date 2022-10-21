@@ -25,3 +25,4 @@ node_modules
 target
 
 package-lock.json
+.DS_Store
