@@ -6,9 +6,7 @@ import gleam/option.{None, Option, Some}
 import gleam/list
 import gleam/int
 import gleam/iterator
-import gleam/io
 import gleam/map.{Map}
-import gleam/string
 import gleam/dynamic.{Dynamic}
 
 pub type Diff {

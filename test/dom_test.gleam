@@ -3,13 +3,19 @@ import gleam_vdom/vdom.{
 }
 import gleam_vdom/dom
 import gleam_vdom/diff.{
-  ChildDiff, Delete, DeleteKey, Insert, InsertKey, RemoveEventListener, ReplaceText,
+  ChildDiff, Delete, DeleteKey, Insert, InsertKey, RemoveEventListener,
+  ReplaceText,
 }
 import node_assert.{should_equal}
 import gleam/io
 import jsdom
 import gleam/option.{None, Some}
 import testing.{child_node_at_index_unchecked, get_global, set_global}
+import gleeunit
+
+pub fn main() {
+  gleeunit.main()
+}
 
 pub fn apply_diff_insert_test() {
   jsdom.init()
